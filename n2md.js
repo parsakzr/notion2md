@@ -37,8 +37,10 @@ const n2m = new NotionToMarkdown({ notionClient: notion });
         // const slug = page.properties.slug.rich_text[0].plain_text;
 
         // CUSTOMIZED FOR @Felix
-        const isFrozen = page.properties.freeze.checkbox;
-        if (isFrozen) continue; // skip the page if it is frozen (i.e. not to be updated)
+        if (process.env.IS_FREEZE) {
+            const isFrozen = page.properties[process.env.COL_FREEZE].checkbox;
+            if (isFrozen) continue; // skip the page if it is frozen (i.e. not to be updated)
+        }
 
         console.log(`--- Page ${title} ---`);
         // console.log(page.properties);
@@ -124,11 +126,21 @@ const n2m = new NotionToMarkdown({ notionClient: notion });
         const postString = frontmatterString + mdString.parent;
 
         // Get the output directory from the terminal
-        const OUTPUT_DIR =
+        let OUTPUT_DIR =
             process.argv[2] || // TODO: implement this with flags
             process.env.OUTPUT_DIR ||
             "./output";
-
+        // Customized for @Felix #2
+        if (process.env.IS_LANG) {
+            console.log("Multi-language mode detected...");
+            const langCol = page.properties[process.env.COL_LANG].select;
+            const lang = langCol ? langCol.name.toLowerCase() : "";
+            const langDir = `${OUTPUT_DIR}/${lang}`;
+            if (!fs.existsSync(langDir)) {
+                fs.mkdirSync(langDir);
+            }
+            OUTPUT_DIR = langDir;
+        }
         // write the markdown to a file
         fs.writeFile(`${OUTPUT_DIR}/${slug}.md`, postString, function (err) {
             if (err) return console.log(err);
