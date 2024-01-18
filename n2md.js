@@ -25,9 +25,13 @@ const n2m = new NotionToMarkdown({ notionClient: notion });
     console.log(`Found ${pages.results.length} pages`);
 
     console.log(pages.results[0].properties);
+    // properties keys are Object.keys(pages.results[0].properties);
 
-    // get the frontmatter columns from the .env file
-    const frontmatter_cols = process.env.NOTION_FRONTMATTER_COLS.split(",");
+    // get the frontmatter columns from the .env file, or use all the columns
+    const frontmatter_cols = process.env.NOTION_FRONTMATTER_COLS
+        ? process.env.NOTION_FRONTMATTER_COLS.split(",")
+        : Object.keys(pages.results[0].properties);
+
     console.log("Frontmatter columns", frontmatter_cols);
     // loop through all pages
     for (const page of pages.results) {
@@ -65,7 +69,8 @@ const n2m = new NotionToMarkdown({ notionClient: notion });
                     frontmatter[col] = value != null ? value : '""';
                     break;
                 case "date":
-                    frontmatter[col] = value.start;
+                    frontmatter[col] =
+                        value != null ? `"${value.start}"` : '""';
                     break;
                 case "multi_select":
                     frontmatter[col] = value.map((option) => option.name);
