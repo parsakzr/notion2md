@@ -1,7 +1,7 @@
 {
-  "dependencies": {
-    "@notionhq/client": "^2.2.7",
-    "dotenv": "^16.3.1",
-    "notion-to-md": "^3.1.1"
-  }
+    "dependencies": {
+        "@notionhq/client": "^2.2.14",
+        "dotenv": "^16.3.1",
+        "notion-to-md": "^3.1.1"
+    }
 }
